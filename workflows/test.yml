@@ -1,4 +1,4 @@
-name: Testes
+name: Testes de Sistema
 
 on:
   push:
@@ -9,8 +9,14 @@ on:
       - main
 
 jobs:
-  build:
+  test:
     runs-on: windows-latest
+
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
 
     steps:
     - name: Checkout code
@@ -24,5 +30,16 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Run tests
+    - name: Run unit tests
       run: npm test
+
+    - name: Run integration tests
+      run: npm run test:integration
+
+    - name: Set up Google Chrome
+      uses: browser-actions/setup-chrome@v1
+
+    - name: Run E2E tests
+      run: npm run test:e2e
+      env:
+        GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
